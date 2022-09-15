@@ -19,3 +19,6 @@ extension UIViewController {
         view.endEditing(true)
     }
 }
+extension Notification.Name {
+    static let didloginNotification = Notification.Name("didloginNotification")
+}

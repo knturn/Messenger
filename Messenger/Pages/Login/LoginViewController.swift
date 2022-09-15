@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
     let vModel = LoginViewModel()
+    private var loginObserver: NSObjectProtocol?
     
     // MARK: UI ELEMENTS
     private lazy var image: UIImageView = {
@@ -54,6 +56,8 @@ class LoginViewController: UIViewController {
         reg.translatesAutoresizingMaskIntoConstraints = false
         return reg
     }()
+    
+    
     private lazy var regButton: UIButton = {
         let reg = UIButton(type: .system)
         reg.setTitle("Don't you have an account yet?", for: .normal)
@@ -63,16 +67,33 @@ class LoginViewController: UIViewController {
         reg.translatesAutoresizingMaskIntoConstraints = false
         return reg
     }()
+    private lazy var googleSignButton: GIDSignInButton = {
+        let bttn = GIDSignInButton()
+        let actn = UIAction { [weak self] _ in
+            self?.googleLoginButtonTapped()
+        }
+        bttn.addAction(actn, for: .touchUpInside)
+        bttn.style = .wide
+        return bttn
+    }()
     
     
     
     // MARK: LİFE CYCLE
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.title = "LOGIN"
+        loginObserver =  NotificationCenter.default.addObserver(forName: .didloginNotification, object: nil, queue: .main) { [weak self] _ in
+            guard let strSelf = self else {return}
+            strSelf.navigationController?.dismiss(animated: true)
+        }
         view.backgroundColor = .white
         addSubviews()
         makeConstraints()
+    }
+    deinit {
+        if let observer = loginObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
         
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -80,26 +101,35 @@ class LoginViewController: UIViewController {
     }
     
     // MARK: FUNCS
+    func googleLoginButtonTapped() {
+        vModel.googleSign(view: self) {
+            let navigationController = UINavigationController(rootViewController: ChatListViewController())
+            self.view.window?.rootViewController = navigationController
+        }
+        
+    }
+    
+    
     @objc func logIn() {
-        vModel.logIn(email: emailTextField.text!, pass: passTextField.text!) { success in
+        vModel.logIn(email: emailTextField.text!, pass: passTextField.text!) { [weak self] success in
             var message = ""
             if success {
                 message = "Succesfully logged in"
+                self?.navigationController?.dismiss(animated: true)
             } else {
                 message = "Oo no!"
             }
             let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {_ in
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {[weak self] _ in
                 guard success else {return}
-                    self.view.window?.rootViewController = HomeViewController()
-                
+                let navigationController = UINavigationController(rootViewController: ChatListViewController())
+                self?.view.window?.rootViewController = navigationController
             }))
-            self.display(alertController: alertController)
+            self?.display(alertController: alertController)
         }
     }
     @objc func goToRegister(){
-        navigationController?.pushViewController(RegisterViewController(), animated: true)
-        navigationController?.navigationBar.isHidden = false
+        view.window?.rootViewController = RegisterViewController()
     }
     func display(alertController: UIAlertController) {
         self.present(alertController, animated: true, completion: nil)
@@ -111,6 +141,7 @@ class LoginViewController: UIViewController {
         view.addSubview(logInButton)
         view.addSubview(regButton)
         view.addSubview(image)
+        view.addSubview(googleSignButton)
         
     }
     
@@ -147,6 +178,13 @@ class LoginViewController: UIViewController {
         }
         regButton.snp.makeConstraints { make in
             make.top.equalTo(logInButton.snp.bottom).offset(20)
+            make.height.equalTo(25)
+            make.left.equalToSuperview().offset(70)
+            make.right.equalToSuperview().offset(-70)
+            
+        }
+        googleSignButton.snp.makeConstraints { make in
+            make.top.equalTo(regButton.snp.bottom).offset(20)
             make.height.equalTo(25)
             make.left.equalToSuperview().offset(70)
             make.right.equalToSuperview().offset(-70)

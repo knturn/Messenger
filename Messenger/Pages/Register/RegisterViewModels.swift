@@ -17,7 +17,10 @@ final class RegisterViewModels {
             completionBlock(success)
         }
     }
-    
+    func insertUser(email: String, name: String){
+        let user = ChatAppUser(userName: name, emailAdress: email)
+        DatabaseManager.shared.insertUser(with: user)
+    }
     
     
 }

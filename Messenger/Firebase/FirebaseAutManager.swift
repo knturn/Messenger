@@ -6,7 +6,8 @@
 //
 
 import FirebaseAuth
-import UIKit
+import FirebaseCore
+import GoogleSignIn
 class FirebaseAuthManager {
     func createUser(email: String, password: String, completionBlock: @escaping (_ success: Bool) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password) {(authResult, error) in
@@ -24,6 +25,36 @@ class FirebaseAuthManager {
                 completionBlock(false)
             } else {
                 completionBlock(true)
+            }
+        }
+    }
+    func useGoogle(view: UIViewController, completionBlock: @escaping () -> Void) {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        let config = GIDConfiguration(clientID: clientID)
+        
+        GIDSignIn.sharedInstance.signIn(with: config, presenting: view) { user, error in
+            if let error = error {
+                print("\(error.localizedDescription)")
+                return
+            }
+            guard
+                let authentication = user?.authentication,
+                let idToken = authentication.idToken
+            else {
+                return
+            }
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: authentication.accessToken)
+            Auth.auth().signIn(with: credential) {
+                _, _ in
+                guard let userName = user?.profile?.name,
+                      let email = user?.profile?.email else {
+                    return
+                }
+                NotificationCenter.default.post(name: .didloginNotification, object: nil)
+                let user = ChatAppUser(userName: userName, emailAdress: email)
+                DatabaseManager.shared.insertUser(with: user)
+                completionBlock()
+                
             }
         }
     }
