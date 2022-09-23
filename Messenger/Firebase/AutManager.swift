@@ -8,7 +8,7 @@
 import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
-class FirebaseAuthManager {
+class AuthManager {
     func createUser(email: String, password: String, completionBlock: @escaping (_ success: Bool) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password) {(authResult, error) in
             if (authResult?.user) != nil {
@@ -51,11 +51,38 @@ class FirebaseAuthManager {
                     return
                 }
                 NotificationCenter.default.post(name: .didloginNotification, object: nil)
-                let user = ChatAppUser(userName: userName, emailAdress: email)
-                DatabaseManager.shared.insertUser(with: user)
-                completionBlock()
-                
+                let chatUser = ChatAppUser(userName: userName, emailAdress: email)
+                DatabaseManager.shared.insertUser(with: chatUser) { success in
+                    if success{
+                        if user?.profile?.hasImage ?? false {
+                            guard let url = user?.profile?.imageURL(withDimension: 200) else {
+                                return
+                            }
+                            URLSession.shared.dataTask(with: url) { data, response, error in
+                                guard let data = data else {
+                                    return
+                                }
+                                let fileName = chatUser.profilePictureFileName
+                                StorageManager.shared.uploadProfilePic(with: data, fileName: fileName) { result in
+                                    switch result {
+                                    case .success(let downloadURL):
+                                        print(downloadURL)
+                                        UserDefaults.standard.set(downloadURL, forKey: "profile_picture_url")
+                                        UserDefaults.standard.set(email, forKey: "email")
+                                    case .failure(let error):
+                                        print(error)
+                                    }
+                                }
+                                
+                            }.resume()
+                        }
+                        
+                    }
+                }
             }
+            completionBlock()
+            
         }
     }
 }
+

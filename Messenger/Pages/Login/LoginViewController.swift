@@ -7,9 +7,11 @@
 
 import UIKit
 import GoogleSignIn
+import JGProgressHUD
 
 class LoginViewController: UIViewController {
     let vModel = LoginViewModel()
+    private let spinner = JGProgressHUD(style: .dark)
     private var loginObserver: NSObjectProtocol?
     
     // MARK: UI ELEMENTS
@@ -111,21 +113,28 @@ class LoginViewController: UIViewController {
     
     
     @objc func logIn() {
+        spinner.show(in: view, animated: true)
         vModel.logIn(email: emailTextField.text!, pass: passTextField.text!) { [weak self] success in
+            guard let strSelf = self else {return}
             var message = ""
             if success {
                 message = "Succesfully logged in"
-                self?.navigationController?.dismiss(animated: true)
+                UserDefaults.standard.set(strSelf.emailTextField.text!, forKey: "email")
+                strSelf.navigationController?.dismiss(animated: true)
             } else {
                 message = "Oo no!"
             }
             let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: {[weak self] _ in
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
                 guard success else {return}
                 let navigationController = UINavigationController(rootViewController: ChatListViewController())
-                self?.view.window?.rootViewController = navigationController
+                strSelf.view.window?.rootViewController = navigationController
             }))
-            self?.display(alertController: alertController)
+            strSelf.display(alertController: alertController)
+            DispatchQueue.main.async {
+                strSelf.spinner.dismiss(animated: true)
+            }
+            
         }
     }
     @objc func goToRegister(){

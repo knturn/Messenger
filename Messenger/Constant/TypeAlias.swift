@@ -4,8 +4,9 @@
 //
 //  Created by Kaan Turan on 9.09.2022.
 //
-
-import Foundation
-import UIKit
+import UIKit.UIViewController
+import MessageKit
 
 typealias ConfigureTableView = UITableViewDelegate & UITableViewDataSource
+typealias ConfigureMessageView = MessagesLayoutDelegate & MessagesDisplayDelegate & MessagesDataSource & MessageCellDelegate
+typealias UploadPictureCompletion = (Result<String, Error> ) -> Void

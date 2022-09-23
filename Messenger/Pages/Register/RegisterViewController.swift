@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 final class RegisterViewController: UIViewController {
     let vModel = RegisterViewModels()
+    private let spinner = JGProgressHUD(style: .dark)
+    
     // MARK: UI ELEMENTS
     private lazy var image: UIImageView = {
         let img = UIImageView()
@@ -116,7 +119,6 @@ final class RegisterViewController: UIViewController {
     // MARK: FUNCTIONS
     @objc func goToLogin(){
         view.window?.rootViewController = LoginViewController()
-        
     }
     @objc func registerConfirm() {
         emailTextField.resignFirstResponder()
@@ -135,32 +137,51 @@ final class RegisterViewController: UIViewController {
             self.display(alertController: alertController)
             return
         }
-        
+        spinner.show(in: view, animated: true)
         vModel.newUser(mail: emailTextField.text!, pass: passTextField.text!) { [weak self] success in
+            guard let strSelf = self else{
+                return
+            }
             var message = ""
             if success {
                 message = "User was created succesfully"
-                guard let email = self?.emailTextField.text,
-                      let name = self?.userNameField.text else {
+                guard let email = strSelf.emailTextField.text,
+                      let name = strSelf.userNameField.text else {
                     return
                 }
-                self?.vModel.insertUser(email: email, name: name)
-                self?.navigationController?.dismiss(animated: true)
+                let chatUser = ChatAppUser(userName: name, emailAdress: email)
+                strSelf.vModel.insertUser(user: chatUser, completionBlock: { success in
+                    
+                    if success {
+                        guard let image = strSelf.image.image,
+                              let data = image.pngData()
+                        else {
+                            return
+                        }
+                        let fileName = chatUser.profilePictureFileName
+                        strSelf.vModel.loadProfilePic(data: data, fileName: fileName)
+                    }
+                })
+                strSelf.navigationController?.dismiss(animated: true)
             }
             else {
                 message = "There was an error"
             }
             
             let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { [weak self] _ in
+            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
                 if success {
-                    self?.view.window?.rootViewController = LoginViewController()
+                    strSelf.view.window?.rootViewController = LoginViewController()
                 }
                 else {
                     return
                 }
             }))
-            self?.display(alertController: alertController)
+            strSelf.display(alertController: alertController)
+            DispatchQueue.main.async {
+                strSelf.spinner.dismiss(animated: true)
+            }
+            
         }
         
         
@@ -240,10 +261,10 @@ final class RegisterViewController: UIViewController {
 extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     func presentImgPicker(){
         let titleAttributes = [NSAttributedString.Key.font: UIFont(name: "HelveticaNeue-Bold", size: 25)!, NSAttributedString.Key.foregroundColor: UIColor.black]
-          let titleString = NSAttributedString(string: "Profile Picture", attributes: titleAttributes)
+        let titleString = NSAttributedString(string: "Profile Picture", attributes: titleAttributes)
         let messageAttributes = [NSAttributedString.Key.font: UIFont(name: "Helvetica", size: 17)!, NSAttributedString.Key.foregroundColor: UIColor.red]
-          let messageString = NSAttributedString(string: "Let's see how would you look like!", attributes: messageAttributes)
-          
+        let messageString = NSAttributedString(string: "Let's see how would you look like!", attributes: messageAttributes)
+        
         let actionsheet = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
         actionsheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         actionsheet.addAction(UIAlertAction(title: "Take picture", style: .default, handler: { [weak self] _ in
@@ -257,17 +278,17 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
             picker.delegate = self
             self?.present(picker, animated: true)
         }
-        ))
+                                           ))
         actionsheet.addAction(UIAlertAction(title: "Choose a picture", style: .default, handler: { [weak self] _ in
             let picker = UIImagePickerController()
             picker.allowsEditing = true
             picker.delegate = self
             self?.present(picker, animated: true)
         }
-        ))
+                                           ))
         actionsheet.setValue(titleString, forKey: "attributedTitle")
         actionsheet.setValue(messageString, forKey: "attributedMessage")
-      present(actionsheet, animated: true)
+        present(actionsheet, animated: true)
     }
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = info[.editedImage] as? UIImage else{return}

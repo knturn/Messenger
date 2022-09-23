@@ -10,13 +10,13 @@ import UIKit.UIViewController
 final class LoginViewModel {
     
      func logIn(email: String, pass: String, completionBlock: @escaping (_ success: Bool) -> Void) {
-        let loginManager = FirebaseAuthManager()
+        let loginManager = AuthManager()
         loginManager.logIn(email: email, pass: pass) { success in
             completionBlock(success)
         }
     }
     func googleSign(view: UIViewController, completionBlock: @escaping () -> Void) {
-        let loginManager = FirebaseAuthManager()
+        let loginManager = AuthManager()
         loginManager.useGoogle(view: view) {
             completionBlock()
         }

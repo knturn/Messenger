@@ -12,14 +12,27 @@ final class RegisterViewModels {
     
     // MARK: FUNCS
     func newUser(mail: String, pass: String, completionBlock: @escaping (_ success: Bool) -> Void) {
-        let signUpManager = FirebaseAuthManager()
-        signUpManager.createUser(email: mail, password: pass) {(success) in
+        let signUpManager = AuthManager()
+        signUpManager.createUser(email: mail, password: pass) { success in
             completionBlock(success)
         }
     }
-    func insertUser(email: String, name: String){
-        let user = ChatAppUser(userName: name, emailAdress: email)
-        DatabaseManager.shared.insertUser(with: user)
+    func insertUser(user: ChatAppUser, completionBlock: @escaping (_ success: Bool) -> Void){
+        DatabaseManager.shared.insertUser(with: user) { success in
+            completionBlock(success)
+        }
+    }
+    func loadProfilePic(data: Data, fileName: String) {
+        StorageManager.shared.uploadProfilePic(with: data, fileName: fileName) { result in
+            switch result {
+            case .success(let downloadURL):
+                print(downloadURL)
+                UserDefaults.standard.set(downloadURL, forKey: "profile_picture_url")
+            case .failure(let error):
+                print(error)
+            }
+        }
+        
     }
     
     

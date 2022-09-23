@@ -1,14 +1,15 @@
 //
-//  ChatPageViewModel.swift
+//  ProfileViewModel.swift
 //  Messenger
 //
-//  Created by Kaan Turan on 9.09.2022.
+//  Created by Kaan Turan on 20.09.2022.
 //
 
 import Foundation
 import FirebaseAuth
 import GoogleSignIn
-final class ChatListViewModel {
+
+final class ProfileViewModel {
     let currentUser = FirebaseAuth.Auth.auth().currentUser
     func signOut() {
         GIDSignIn.sharedInstance.signOut()
@@ -19,6 +20,5 @@ final class ChatListViewModel {
             print("Can't sign out")
         }
     }
-    
     
 }

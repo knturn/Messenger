@@ -8,13 +8,19 @@
 import UIKit
 
 class ProfileViewController: UIViewController {
+    let vModel = ProfileViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        let logOut = UIBarButtonItem(image: UIImage(systemName: "xmark.circle.fill"), style: .done, target: self, action: #selector(signOut))
+        navigationController?.navigationBar.backgroundColor = .clear
+        navigationItem.rightBarButtonItem = logOut
         view.backgroundColor = .orange
     }
-    
+    @objc func signOut() {
+        vModel.signOut()
+        view.window?.rootViewController = UINavigationController(rootViewController: LoginViewController())
+    }
 
     /*
     // MARK: - Navigation

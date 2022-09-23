@@ -10,9 +10,11 @@ import Foundation
 struct ChatAppUser {
     let userName: String
     let emailAdress: String
-    
     var mailForFirebase: String {
         let mailForFirebase = emailAdress.replacingOccurrences(of: ".", with: "-")
         return mailForFirebase
+    }
+    var profilePictureFileName: String {
+       return "\(mailForFirebase)_profile_picture.png"
     }
 }
