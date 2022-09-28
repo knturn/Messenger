@@ -15,12 +15,13 @@ final class LoginViewModel {
             completionBlock(success)
         }
     }
-    func googleSign(view: UIViewController, completionBlock: @escaping () -> Void) {
+    func googleSign(view: UIViewController, completion: @escaping (Bool) -> Void) {
         let loginManager = AuthManager()
-        loginManager.useGoogle(view: view) {
-            completionBlock()
+        loginManager.useGoogle(view: view){ result in
+            completion(result)
         }
     }
+    
     
     
 }

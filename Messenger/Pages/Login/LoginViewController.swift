@@ -10,9 +10,10 @@ import GoogleSignIn
 import JGProgressHUD
 
 class LoginViewController: UIViewController {
+    //MARK: PROPERTIES
     let vModel = LoginViewModel()
     private let spinner = JGProgressHUD(style: .dark)
-    private var loginObserver: NSObjectProtocol?
+    private var isloginObserver: NSObjectProtocol?
     
     // MARK: UI ELEMENTS
     private lazy var image: UIImageView = {
@@ -81,68 +82,59 @@ class LoginViewController: UIViewController {
     
     
     
-    // MARK: LİFE CYCLE
+    // MARK: LIFE CYCLE
     override func viewDidLoad() {
         super.viewDidLoad()
-        loginObserver =  NotificationCenter.default.addObserver(forName: .didloginNotification, object: nil, queue: .main) { [weak self] _ in
-            guard let strSelf = self else {return}
-            strSelf.navigationController?.dismiss(animated: true)
-        }
+       createObserver()
         view.backgroundColor = .white
         addSubviews()
         makeConstraints()
     }
     deinit {
-        if let observer = loginObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        
+       closeObserver()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
     
     // MARK: FUNCS
-    func googleLoginButtonTapped() {
-        vModel.googleSign(view: self) {
-            let navigationController = UINavigationController(rootViewController: ChatListViewController())
-            self.view.window?.rootViewController = navigationController
+    func createObserver() {
+        isloginObserver =  NotificationCenter.default.addObserver(forName: .didloginNotification, object: nil, queue: .main) { _ in
+            
         }
-        
     }
-    
-    
+    func closeObserver() {
+        if let observer = isloginObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+  
+    func googleLoginButtonTapped() {
+        spinner.show(in: view, animated: true)
+        vModel.googleSign(view: self) { [weak self] result in
+            guard let self = self else {return}
+            if result {
+                let navigationController = UINavigationController(rootViewController: ChatListViewController())
+                self.view.window?.rootViewController = navigationController
+                self.spinner.dismiss(animated: true)
+            }
+        }
+    }
     @objc func logIn() {
         spinner.show(in: view, animated: true)
         vModel.logIn(email: emailTextField.text!, pass: passTextField.text!) { [weak self] success in
             guard let strSelf = self else {return}
-            var message = ""
-            if success {
-                message = "Succesfully logged in"
-                UserDefaults.standard.set(strSelf.emailTextField.text!, forKey: "email")
-                strSelf.navigationController?.dismiss(animated: true)
-            } else {
-                message = "Oo no!"
-            }
-            let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
+            let message = success ? "Succesfully logged in" : "Oo no!"
+            strSelf.displayAlert(message: message) { _ in
                 guard success else {return}
                 let navigationController = UINavigationController(rootViewController: ChatListViewController())
                 strSelf.view.window?.rootViewController = navigationController
-            }))
-            strSelf.display(alertController: alertController)
-            DispatchQueue.main.async {
-                strSelf.spinner.dismiss(animated: true)
             }
-            
+            strSelf.spinner.dismiss(animated: true)
         }
     }
     @objc func goToRegister(){
         view.window?.rootViewController = RegisterViewController()
-    }
-    func display(alertController: UIAlertController) {
-        self.present(alertController, animated: true, completion: nil)
-        
     }
     func addSubviews() {
         view.addSubview(emailTextField)

@@ -10,3 +10,5 @@ import MessageKit
 typealias ConfigureTableView = UITableViewDelegate & UITableViewDataSource
 typealias ConfigureMessageView = MessagesLayoutDelegate & MessagesDisplayDelegate & MessagesDataSource & MessageCellDelegate
 typealias UploadPictureCompletion = (Result<String, Error> ) -> Void
+typealias DownloadURLCompletion = (Result <URL, Error>) -> Void
+

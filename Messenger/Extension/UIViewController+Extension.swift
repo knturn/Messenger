@@ -21,4 +21,13 @@ extension UIViewController {
 }
 extension Notification.Name {
     static let didloginNotification = Notification.Name("didloginNotification")
+    static let loginFailedNotification = Notification.Name("loginFailed")
+}
+
+extension UIViewController {
+    func displayAlert(title: String? = nil, message: String, buttonTitle: String = "OK", handler: @escaping (UIAlertAction) -> Void = {_ in } ) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: buttonTitle, style: .cancel, handler: handler))
+        self.present(alertController, animated: true, completion: nil)
+    }
 }

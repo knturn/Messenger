@@ -25,5 +25,21 @@ class CustomTextField: UITextField {
     override open func editingRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.inset(by: padding)
     }
-    
+    override init(frame: CGRect) {
+            super.init(frame: frame)
+            textFieldSetup()
+        }
+
+        required init?(coder aDecoder: NSCoder) {
+            super.init(coder: aDecoder)
+            textFieldSetup()
+        }
+
+    private func textFieldSetup() {
+            self.layer.borderWidth = 2
+            self.layer.borderColor = UIColor.gray.cgColor
+            self.borderStyle = .roundedRect
+            self.layer.cornerRadius = 12
+        }
 }
+

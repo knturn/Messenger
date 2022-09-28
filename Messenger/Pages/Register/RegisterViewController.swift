@@ -9,7 +9,8 @@ import UIKit
 import JGProgressHUD
 
 final class RegisterViewController: UIViewController {
-    let vModel = RegisterViewModels()
+    //MARK: PROPERTIES
+    private let vModel = RegisterViewModels()
     private let spinner = JGProgressHUD(style: .dark)
     
     // MARK: UI ELEMENTS
@@ -41,10 +42,7 @@ final class RegisterViewController: UIViewController {
     }()
     private lazy var emailTextField: CustomTextField = {
         let txt = CustomTextField()
-        txt.attributedPlaceholder = NSAttributedString(string: "Email:", attributes: [
-            .foregroundColor: UIColor.lightGray,
-            .font: UIFont.boldSystemFont(ofSize: 14.0)
-        ])
+        txt.attributedPlaceholder = "Email:".textfieldHintFormat()
         txt.autocorrectionType = UITextAutocorrectionType.no
         txt.autocapitalizationType = UITextAutocapitalizationType.none
         txt.layer.borderWidth = 2
@@ -55,10 +53,7 @@ final class RegisterViewController: UIViewController {
     
     private lazy var passTextField: CustomTextField = {
         let txt = CustomTextField()
-        txt.attributedPlaceholder = NSAttributedString(string: "Password: Have to be longer than 6 character", attributes: [
-            .foregroundColor: UIColor.lightGray,
-            .font: UIFont.boldSystemFont(ofSize: 14.0)
-        ])
+        txt.attributedPlaceholder = "Password: Have to be longer than 6 character".textfieldHintFormat()
         txt.autocorrectionType = UITextAutocorrectionType.no
         txt.autocapitalizationType = UITextAutocapitalizationType.none
         txt.layer.borderWidth = 2
@@ -70,14 +65,7 @@ final class RegisterViewController: UIViewController {
     }()
     private lazy var confirmPassTextField: CustomTextField = {
         let txt = CustomTextField()
-        txt.attributedPlaceholder = NSAttributedString(string: "Confirm your password", attributes: [
-            .foregroundColor: UIColor.lightGray,
-            .font: UIFont.boldSystemFont(ofSize: 14.0)
-        ])
-        txt.layer.borderWidth = 2
-        txt.layer.borderColor = UIColor.gray.cgColor
-        txt.borderStyle = .roundedRect
-        txt.layer.cornerRadius = 12
+        txt.attributedPlaceholder =  "Confirm your password".textfieldHintFormat()
         txt.isSecureTextEntry = true
         return txt
     }()
@@ -123,65 +111,28 @@ final class RegisterViewController: UIViewController {
     @objc func registerConfirm() {
         emailTextField.resignFirstResponder()
         passTextField.resignFirstResponder()
-        guard emailTextField.text?.count != 0 else {
+        guard let email = emailTextField.text, !email.isEmpty else {
             emailTextField.placeholder = "Please write your emaill adress"
-            let alertController = UIAlertController(title: nil, message: "You can not leave the email field blank", preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.display(alertController: alertController)
+            self.displayAlert(message: "You can not leave the email field blank")
             return
         }
         
-        guard passTextField.text?.count ?? 0 >= 6 && passTextField.text == confirmPassTextField.text  else {
-            let alertController = UIAlertController(title: nil, message: "Password is not matched", preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.display(alertController: alertController)
+        guard let password = passTextField.text, password.count >= 6, password == confirmPassTextField.text  else {
+            self.displayAlert(message: "Password is not matched")
             return
         }
+        guard let name = self.userNameField.text else { return }
         spinner.show(in: view, animated: true)
-        vModel.newUser(mail: emailTextField.text!, pass: passTextField.text!) { [weak self] success in
-            guard let strSelf = self else{
-                return
+        let image = self.image.image
+        vModel.setUserInfo(email: email, name: name, password: password, imageData: image?.pngData())
+        vModel.newUser() { [weak self] result in
+            guard let self = self else { return }
+            let message = result ? "User was created succesfully" : "There was an error"
+            self.displayAlert(message: message) { [weak self] _ in
+                guard result else { return }
+                self?.view.window?.rootViewController = LoginViewController()
             }
-            var message = ""
-            if success {
-                message = "User was created succesfully"
-                guard let email = strSelf.emailTextField.text,
-                      let name = strSelf.userNameField.text else {
-                    return
-                }
-                let chatUser = ChatAppUser(userName: name, emailAdress: email)
-                strSelf.vModel.insertUser(user: chatUser, completionBlock: { success in
-                    
-                    if success {
-                        guard let image = strSelf.image.image,
-                              let data = image.pngData()
-                        else {
-                            return
-                        }
-                        let fileName = chatUser.profilePictureFileName
-                        strSelf.vModel.loadProfilePic(data: data, fileName: fileName)
-                    }
-                })
-                strSelf.navigationController?.dismiss(animated: true)
-            }
-            else {
-                message = "There was an error"
-            }
-            
-            let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { _ in
-                if success {
-                    strSelf.view.window?.rootViewController = LoginViewController()
-                }
-                else {
-                    return
-                }
-            }))
-            strSelf.display(alertController: alertController)
-            DispatchQueue.main.async {
-                strSelf.spinner.dismiss(animated: true)
-            }
-            
+            self.spinner.dismiss(animated: true)
         }
         
         
@@ -191,10 +142,8 @@ final class RegisterViewController: UIViewController {
         
     }
     
-    func display(alertController: UIAlertController) {
-        self.present(alertController, animated: true, completion: nil)
-        
-    }
+    
+    
     
     func addSubviews() {
         view.addSubview(emailTextField)

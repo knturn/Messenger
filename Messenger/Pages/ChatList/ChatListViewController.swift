@@ -10,6 +10,7 @@ import JGProgressHUD
 import GoogleSignIn
 
 class ChatListViewController: UIViewController {
+    //MARK: PROPERTIES
     let vmodel = ChatListViewModel()
     private let spinner = JGProgressHUD(style: .dark)
     
@@ -20,7 +21,7 @@ class ChatListViewController: UIViewController {
         return table
     }()
     private lazy var noConversationsLabel: UILabel = {
-       let lbl = UILabel()
+        let lbl = UILabel()
         lbl.isHidden = true
         lbl.text = "There is no conversation yet!"
         lbl.textAlignment = .center
@@ -50,8 +51,20 @@ class ChatListViewController: UIViewController {
     //MARK: FUNCS
     @objc func newConversation() {
         let vc = NewConversationViewController()
+        vc.completion = { [weak self] result in
+            self?.createNewConversaitons(result: result)
+        }
         let navCont = UINavigationController(rootViewController: vc)
         present(navCont, animated: true)
+    }
+    private func createNewConversaitons(result: [String: String]) {
+        guard let name = result["name"],
+              let email = result["email"] else {return}
+        let vc = ChatViewController(with: email)
+        vc.title = name
+        vc.isNewConversation = true
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
     }
     private func validateAuth() {
         if vmodel.currentUser == nil {
@@ -100,15 +113,15 @@ class ChatListViewController: UIViewController {
 // MARK : EXTENSİONS
 extension ChatListViewController: ConfigureTableView {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = ChatListCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "custom", for: indexPath) as? ChatListCell ?? UITableViewCell()
         return cell
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        12
+        1
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = ChatViewController()
+        let vc = ChatViewController(with: "empty mail")
         vc.title = "CANIM ANAM"
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)

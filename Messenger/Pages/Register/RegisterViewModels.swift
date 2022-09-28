@@ -9,25 +9,52 @@ import Foundation
 
 
 final class RegisterViewModels {
+   private var email: String?
+    private var name: String?
+    private var password: String?
+    private var imageData: Data?
     
     // MARK: FUNCS
-    func newUser(mail: String, pass: String, completionBlock: @escaping (_ success: Bool) -> Void) {
+    func setUserInfo(email: String, name: String, password: String, imageData: Data?) {
+        self.password = password
+        self.email = email
+        self.name = name
+        self.imageData = imageData
+    }
+    func newUser(completionBlock: @escaping (_ success: Bool) -> Void) {
+        guard let password = password, let email = email else {
+            completionBlock(false)
+            return
+        }
+
         let signUpManager = AuthManager()
-        signUpManager.createUser(email: mail, password: pass) { success in
-            completionBlock(success)
+        signUpManager.createUser(email: email, password: password) {  [weak self] result in
+            if result {
+                self?.insertUser()
+            }
+            
+            completionBlock(result)
         }
     }
-    func insertUser(user: ChatAppUser, completionBlock: @escaping (_ success: Bool) -> Void){
-        DatabaseManager.shared.insertUser(with: user) { success in
-            completionBlock(success)
+    private func insertUser(){
+        guard let name = name, let email = email else {
+            return
+        }
+        let user = ChatAppUser(userName: name, emailAdress: email)
+        DatabaseManager.shared.insertUser(with: user) { [weak self ] result in
+            guard let self = self, result else { return }
+            
+            self.loadProfilePic(data: self.imageData, fileName: user.profilePictureFileName)
         }
     }
-    func loadProfilePic(data: Data, fileName: String) {
+    private func loadProfilePic(data: Data?, fileName: String) {
+        guard let data = data else { return }
+
         StorageManager.shared.uploadProfilePic(with: data, fileName: fileName) { result in
             switch result {
             case .success(let downloadURL):
                 print(downloadURL)
-                UserDefaults.standard.set(downloadURL, forKey: "profile_picture_url")
+                //UserDefaults.standard.set(downloadURL, forKey: "profile_picture_url")
             case .failure(let error):
                 print(error)
             }
