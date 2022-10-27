@@ -10,13 +10,10 @@ import JGProgressHUD
 class NewConversationViewController: UIViewController {
     //MARK: PROPERTIES
     let vModel = NewConversationViewModel()
-    private var users = [[String: String]]()
-    private var results = [[String: String]]()
-    private var hasFetched = false
-    public var completion: (([String: String]) -> Void)?
+    var completion: ((Conversation)-> Void)?
     // MARK: UI ELEMENTS
     private let spinner = JGProgressHUD(style: .dark)
-   
+    
     
     private lazy var searchBar : UISearchBar = {
         let srch = UISearchBar()
@@ -62,8 +59,8 @@ class NewConversationViewController: UIViewController {
         view.addSubview(noResultsLabel)
     }
     func conformTableView(){
-       addSubviews()
-       drawDesign()
+        addSubviews()
+        drawDesign()
         makeConstraints()
     }
     func drawDesign() {
@@ -85,78 +82,60 @@ class NewConversationViewController: UIViewController {
 extension NewConversationViewController : UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else {return}
-        results.removeAll()
         spinner.show(in: view)
         searchUsers(query: text)
     }
     func searchUsers(query: String) {
-        if hasFetched {
-            filteredUsers(with: query)
-        }
-        else {
-            DatabaseManager.shared.getAllUsers { [weak self] result in
-                switch result {
-                case .success(let value):
-                    self?.hasFetched = true
-                    self?.users = value
-                    self?.filteredUsers(with: query)
-                case .failure(let error):
-                    print("Failed fetch users: \(error)")
+            vModel.getUsers(query: query) { [weak self] result in
+                guard let self else {return}
+                if result  {
+                    DispatchQueue.main.async {
+                        self.spinner.dismiss(animated: true)
+                        self.updateUI()
+                    }
                 }
             }
         }
-        DispatchQueue.main.async { [weak self] in
-            self?.updateUI()
-        }
-        
-    }
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         
     }
     
-    func filteredUsers(with term: String) {
-        guard hasFetched else{return}
-        self.spinner.dismiss(animated: true)
-        let results: [[String: String]] = users.filter {
-            guard let name = $0["name"]?.lowercased() else{return false}
-            return name.hasPrefix(term.lowercased())
-        }
-        self.results = results
-        DispatchQueue.main.async { [weak self] in
-            self?.updateUI()
-        }
-    }
     func updateUI() {
-        if results.isEmpty {
-            self.noResultsLabel.isHidden = false
-            self.tableView.isHidden = true
+        let isFetched = vModel.resultCount() == 0
+        if
+            isFetched {
+            noResultsLabel.isHidden = false
+            tableView.isHidden = true
         }
         else {
-            self.noResultsLabel.isHidden = true
-            self.tableView.isHidden = false
-            self.tableView.reloadData()
+            noResultsLabel.isHidden = true
+            tableView.isHidden = false
+            tableView.reloadData()
         }
     }
 }
 extension NewConversationViewController : ConfigureTableView {
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.textLabel?.text = results[indexPath.row]["name"]
-            return cell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        if let name = vModel.resultsName(by: indexPath.row){
+            cell.textLabel?.text = name
         }
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            results.count
-        }
-        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            tableView.deselectRow(at: indexPath, animated: true)
-            // TODO: Go to conversation Screen
-            let targetUserData = results[indexPath.row]
-            dismiss(animated: true) { [weak self] in 
-                self?.completion?(targetUserData)
+        return cell
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        vModel.resultCount()
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        // TODO: Go to conversation Screen
+        let target = vModel.searchedUser(by: indexPath.row)
+        vModel.goToChatPage(with: target) { [weak self] conversation in
+            guard let self else{return}
+            self.dismiss(animated: true) {
+                self.completion?(conversation)
             }
             
         }
-     
-    
+    }
 }
 

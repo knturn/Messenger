@@ -13,8 +13,10 @@ final class StorageManager {
     static let shared = StorageManager()
     private let storage = Storage.storage().reference()
     public func uploadProfilePic (with data : Data, fileName: String, completion: @escaping UploadPictureCompletion) {
-        storage.child("images/\(fileName)").putData(data, metadata: nil) { metaData, error in
-            guard error == nil else{
+        storage.child("images/\(fileName)").putData(data, metadata: nil) { [weak self] metaData, error in
+            guard error == nil,
+                  let self
+            else{
                 print("failed to upload pictures")
                 completion(.failure(StorageErrors.failedToUpload))
                 return
@@ -26,7 +28,6 @@ final class StorageManager {
                     return
                 }
                 let urlString = url.absoluteString
-                print("download url returned: \(url)")
                 completion(.success(urlString))
                 
             }

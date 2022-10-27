@@ -11,36 +11,39 @@ import InputBarAccessoryView
 class ChatViewController: MessagesViewController  {
     //MARK: PROPERTIES
     let vModel = ChatViewModel()
-    public let otherUserEmail: String
-    public var isNewConversation: Bool = false
-    private let selfSender: Sender = {
-        guard let email = AuthManager.currentUser?.email else{ return Sender(photoURL: "", senderId: "", displayName: "")}
-         let photoURL = "ss"
-         let displayName = "Kaan Turan"
-        return Sender(photoURL: photoURL, senderId: email, displayName: displayName)
-    }()
-    
-    
-    init(with email: String) {
-        self.otherUserEmail = email
-        super.init(nibName: nil, bundle: nil)
-        
-    }
-    
+    public let conversation: Conversation
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     // MARK: LIFE CYCLE
+    init(with conv: Conversation) {
+        self.conversation = conv
+        super.init(nibName: nil, bundle: nil)
+        
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .yellow
         conformMessageView()
-        messagesCollectionView.reloadData()
+        vModel.getMessages(conv: conversation) { [weak self] result in
+            guard let self else{return}
+            if result {
+                // Need set up.
+                self.messagesCollectionView.reloadData()
+                self.messagesCollectionView.scrollToLastItem(animated: true)
+            }
+            
+        }
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
     // MARK: FUNCS
     func conformMessageView() {
         messagesCollectionView.messagesDataSource = self
@@ -48,6 +51,14 @@ class ChatViewController: MessagesViewController  {
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messageCellDelegate = self
         messageInputBar.delegate = self
+        configureMessageInputBar()
+    }
+    func configureMessageInputBar() {
+        messageInputBar.inputTextView.tintColor = .black
+        messageInputBar.sendButton.setTitleColor(.orange, for: .normal)
+        messageInputBar.sendButton.setTitleColor(
+            UIColor.black.withAlphaComponent(0.3),
+            for: .highlighted)
     }
     
 }
@@ -55,38 +66,29 @@ class ChatViewController: MessagesViewController  {
 
 extension ChatViewController: ConfigureMessageView {
     var currentSender: SenderType {
-        selfSender
+        Sender.selfSender
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
-        return vModel.messages[indexPath.row]
+        return vModel.getMessageForRow(int: indexPath.section)
     }
     
     func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
-        return vModel.messages.count
+        vModel.messages.count
     }
-    
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        vModel.getProfilePicture(message: message) { url in
+            DispatchQueue.main.async {
+                avatarView.sd_setImage(with: url)
+            }
+        }
+    }
 }
 extension ChatViewController: InputBarAccessoryViewDelegate {
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty else{ return }
-        
-        print("Sending \(text)")
-        // TODO: Send Messages
-        if isNewConversation {
-            // TODO: Create new conversation on database
-            let message = Message(sender: selfSender, messageId: vModel.createMessageID(with: otherUserEmail), sentDate: Date(), kind: .text("aa"))
-            vModel.createNewConversations(with:  message){ success in
-                
-            }
-        }
-        else {
-            // Add existing one
-            let message = Message(sender: selfSender, messageId: vModel.createMessageID(with: otherUserEmail), sentDate: Date(), kind: .text("aa"))
-            vModel.sendMessage(with: message) { success in
-            }
-        }
+        vModel.sendMessage(to: conversation, content: text)
+        inputBar.inputTextView.text = ""
     }
-   
+    
 }
-

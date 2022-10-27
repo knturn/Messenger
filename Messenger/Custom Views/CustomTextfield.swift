@@ -36,10 +36,10 @@ class CustomTextField: UITextField {
         }
 
     private func textFieldSetup() {
-            self.layer.borderWidth = 2
-            self.layer.borderColor = UIColor.gray.cgColor
-            self.borderStyle = .roundedRect
-            self.layer.cornerRadius = 12
+            layer.borderWidth = 2
+            layer.borderColor = UIColor.gray.cgColor
+            borderStyle = .roundedRect
+            layer.cornerRadius = 12
         }
 }
 

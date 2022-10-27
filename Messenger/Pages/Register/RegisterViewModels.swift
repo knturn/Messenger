@@ -9,7 +9,7 @@ import Foundation
 
 
 final class RegisterViewModels {
-   private var email: String?
+    private var email: String?
     private var name: String?
     private var password: String?
     private var imageData: Data?
@@ -26,7 +26,7 @@ final class RegisterViewModels {
             completionBlock(false)
             return
         }
-
+        
         let signUpManager = AuthManager()
         signUpManager.createUser(email: email, password: password) {  [weak self] result in
             if result {
@@ -42,14 +42,19 @@ final class RegisterViewModels {
         }
         let user = ChatAppUser(userName: name, emailAdress: email)
         DatabaseManager.shared.insertUser(with: user) { [weak self ] result in
-            guard let self = self, result else { return }
+            guard let self else { return }
+            if result != .error {
+                self.loadProfilePic(data: self.imageData, fileName: user.profilePictureFileName)
+            }
+            else {
+                print("Something went wrong while inserting user to DB")
+            }
             
-            self.loadProfilePic(data: self.imageData, fileName: user.profilePictureFileName)
         }
     }
     private func loadProfilePic(data: Data?, fileName: String) {
         guard let data = data else { return }
-
+        
         StorageManager.shared.uploadProfilePic(with: data, fileName: fileName) { result in
             switch result {
             case .success(let downloadURL):

@@ -6,14 +6,10 @@
 //
 
 import UIKit
-import JGProgressHUD
 
 class ProfileViewController: UIViewController {
     //MARK: PROPERTIES
-    private let spinner = JGProgressHUD(style: .light)
     let vModel = ProfileViewModel()
-    let list = 0...10
-    
     //MARK: UI ELEMENTS
     private lazy var tableView: UITableView = {
         let tblview = UITableView()
@@ -24,7 +20,7 @@ class ProfileViewController: UIViewController {
     // MARK: LIFE CYCLE
     override func viewDidLoad() {
         super.viewDidLoad()
-        let logOut = UIBarButtonItem(image: UIImage(systemName: "xmark.circle.fill"), style: .done, target: self, action: #selector(signOut))
+        let logOut = UIBarButtonItem(title: "Log Out", style: .done, target: self, action: #selector(signOut))
         navigationController?.navigationBar.backgroundColor = .clear
         navigationItem.rightBarButtonItem = logOut
         view.backgroundColor = .orange
@@ -36,35 +32,27 @@ class ProfileViewController: UIViewController {
     }
     // MARK: FUNCS
     private func createTableViewHeader() -> UIView? {
-        guard let email = AuthManager.currentUser?.email else {return nil}
-        let path = email.getProfileImagePath()
-        
-        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 300))
-        /*headerView.snp.makeConstraints { make in
-            make.width.equalTo(view.frame.width)
-            make.height.equalTo(300)
-            make.bottom.equalTo(tableView.frame.minY)
-        }*/
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 400))
         view.backgroundColor = .link
-        let imageView = UIImageView(frame: CGRect(x: (view.frame.width - 150)/2, y: 75, width: 150, height: 150))
+        let imageView = UIImageView(frame: CGRect(x: (view.frame.width - 180)/2, y: 110, width: 200, height: 200))
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = .white
         imageView.layer.borderColor = UIColor.white.cgColor
         imageView.layer.borderWidth = 3
         imageView.layer.cornerRadius = imageView.frame.width/2
         imageView.layer.masksToBounds = true
-        vModel.downLoadURL(for: path) { [weak self] url in
-            
-            guard let self = self, let url = url else { return }
-            self.spinner.show(in: imageView, animated: true)
-            self.vModel.downloadImage(imageView: imageView, url: url)
-            self.spinner.dismiss(animated: true)
+        DispatchQueue.main.async {
+            guard let url: URL = AuthManager.userInfos.currentUserProfilePictureUrl else{
+                imageView.image = UIImage(systemName: "person")
+                return
+            }
+            imageView.sd_setImage(with: url)
         }
         headerView.addSubview(imageView)
         headerView.backgroundColor = .lightGray
         return headerView
     }
-  
+    
     private func configureTableView() {
         drawDesign()
         addSubViews()
@@ -77,39 +65,44 @@ class ProfileViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "custom")
+        tableView.contentMode = .center
     }
     private func addSubViews() {
         view.addSubview(tableView)
     }
     
     // MARK: CONSTRAINTS
-    private func makeConstraints(){
+    private func makeConstraints() {
         tableView.snp.makeConstraints { make in
-            make.right.left.bottom.top.equalToSuperview()
+            make.edges.equalToSuperview()
         }
     }
-    
 }
 
 // MARK: EXTENSİONS
 extension ProfileViewController: ConfigureTableView {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = "Aynnnen"
-        return cell
+        createProfileViewCell(indexPath: indexPath)
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        list.count
+        vModel.userInfos.count
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        tableView.deselectRow(at: indexPath, animated: true)
     }
-    func deselectSelectedRow(animated: Bool) {
-        
+    private func createProfileViewCell(indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "custom", for: indexPath)
+        cell.layer.masksToBounds = true
+        cell.accessoryView = UIImageView(image: UIImage(systemName: "pencil"))
+        cell.layer.cornerRadius = 8
+        cell.layer.borderWidth = 2
+        cell.layer.shadowOffset = CGSize(width: -1, height: 2)
+        cell.backgroundColor = .clear
+        cell.textLabel?.textColor = .darkGray
+        cell.textLabel?.contentMode = .center
+        cell.textLabel?.font = .preferredFont(forTextStyle: .headline)
+        cell.textLabel?.text = vModel.userInfos[indexPath.row]
+        return cell
     }
-    /*func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-     23
-     }
-     */
+    
 }
-

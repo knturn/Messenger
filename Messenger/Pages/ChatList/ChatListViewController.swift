@@ -14,6 +14,7 @@ class ChatListViewController: UIViewController {
     let vmodel = ChatListViewModel()
     private let spinner = JGProgressHUD(style: .dark)
     
+    
     // MARK: UI ELEMENT
     private lazy var tableView: UITableView = {
         let table = UITableView()
@@ -39,7 +40,10 @@ class ChatListViewController: UIViewController {
         fetchConversations()
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.title = "Chats"
-        let profile = UIBarButtonItem(image: UIImage(systemName: "person.circle.fill"), style: .done, target: self, action: #selector(goToProfile))
+        let font = UIFont.systemFont(ofSize: 20)
+        let attributes = [NSAttributedString.Key.font: font]
+        let attirubettext = NSAttributedString(string: "Profile", attributes: attributes)
+        let profile = UIBarButtonItem(title: attirubettext.string, style: .done, target: self, action: #selector(goToProfile))
         navigationController?.navigationBar.backgroundColor = .clear
         navigationItem.rightBarButtonItem = profile
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(newConversation))
@@ -47,50 +51,77 @@ class ChatListViewController: UIViewController {
         configureTableView()
     }
     
-    
     //MARK: FUNCS
-    @objc func newConversation() {
-        let vc = NewConversationViewController()
-        vc.completion = { [weak self] result in
-            self?.createNewConversaitons(result: result)
-        }
-        let navCont = UINavigationController(rootViewController: vc)
-        present(navCont, animated: true)
-    }
-    private func createNewConversaitons(result: [String: String]) {
-        guard let name = result["name"],
-              let email = result["email"] else {return}
-        let vc = ChatViewController(with: email)
-        vc.title = name
-        vc.isNewConversation = true
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
-    }
+    /// Check currenUser. If currentUser == nil present login screen.
     private func validateAuth() {
-        if vmodel.currentUser == nil {
+        if AuthManager.currentUser == nil {
             let navigationController = UINavigationController(rootViewController: LoginViewController())
             navigationController.modalPresentationStyle = .fullScreen
             present(navigationController, animated: true)
         }
+        AuthManager.userInfos.userName == nil ? AuthManager.configure() : nil
     }
+    /// New conversation screen present and create new chat screen
+    @objc private func newConversation() {
+        let vc = NewConversationViewController()
+        vc.completion = { [weak self] conversation in
+            self?.createNewConv(with: conversation)
+        }
+        let navCont = UINavigationController(rootViewController: vc)
+        present(navCont, animated: true)
+    }
+    private func createNewConv(with conv: Conversation) {
+        let vc = ChatViewController(with: conv)
+        vc.title = vmodel.getUserName(for: conv)
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
+    }
+   /// Fetch all conversations for currentUser
     private func fetchConversations() {
-        tableView.isHidden = false
+        vmodel.fetchConversations() { [weak self] result in
+            if result {
+                DispatchQueue.main.async {
+                    if self?.vmodel.conversationsLength() == 0 {
+                        self?.noConversationsLabel.isHidden = false
+                    } else {
+                        self?.tableView.isHidden = false
+                        self?.tableView.reloadData()
+                    }
+                }
+            }
+            else {
+                print("error")
+            }
+        }
     }
-    @objc func goToProfile() {
+    /// Go to chat page for choosen chat.
+    private func goToChatPage(index: Int) {
+        let conv = vmodel.getConversation(int: index)
+        let vc = ChatViewController(with: conv)
+        vc.title = vmodel.getUserName(for: conv)
+        DispatchQueue.main.async { [weak self] in
+            vc.navigationItem.largeTitleDisplayMode = .never
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    /// Go to profile page
+    @objc private func goToProfile() {
         navigationController?.pushViewController(ProfileViewController(), animated: true)
     }
+    
+    // MARK: CONFIGURE TABLEVIEW
     private func configureTableView() {
         drawDesign()
         addSubViews()
         makeConstraints()
-        
     }
+    
     private func drawDesign() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(ChatListCell.self, forCellReuseIdentifier: "custom")
-        
+        tableView.register(ChatListCell.self, forCellReuseIdentifier: ChatListCell.identifier)
     }
+    
     private func addSubViews() {
         view.addSubview(tableView)
         view.addSubview(noConversationsLabel)
@@ -99,7 +130,7 @@ class ChatListViewController: UIViewController {
     // MARK: CONSTRAINTS
     private func makeConstraints(){
         tableView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(100)
+            make.top.equalToSuperview()
             make.right.left.bottom.equalToSuperview()
         }
         noConversationsLabel.snp.makeConstraints { make in
@@ -110,27 +141,28 @@ class ChatListViewController: UIViewController {
     }
     
 }
-// MARK : EXTENSİONS
+
+// MARK: EXTENSIONS
 extension ChatListViewController: ConfigureTableView {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "custom", for: indexPath) as? ChatListCell ?? UITableViewCell()
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatListCell.identifier, for: indexPath) as? ChatListCell
+        else{return UITableViewCell()}
+        let conv = vmodel.getConversation(int: indexPath.row)
+        cell.addUserInformation(for: conv)
         return cell
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
+        vmodel.conversationsLength()
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = ChatViewController(with: "empty mail")
-        vc.title = "CANIM ANAM"
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        goToChatPage(index: indexPath.row)
     }
     func deselectSelectedRow(animated: Bool) {
         
     }
-    /*func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-     23
-     }
-     */
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        100
+    }
+    
 }

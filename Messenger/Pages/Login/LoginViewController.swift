@@ -27,9 +27,6 @@ class LoginViewController: UIViewController {
         txt.placeholder = "Email:"
         txt.autocorrectionType = UITextAutocorrectionType.no
         txt.autocapitalizationType = UITextAutocapitalizationType.none
-        txt.layer.borderWidth = 2
-        txt.layer.borderColor = UIColor.gray.cgColor
-        txt.layer.cornerRadius = 10
         return txt
     }()
     
@@ -38,10 +35,6 @@ class LoginViewController: UIViewController {
         txt.placeholder = "Password:"
         txt.autocorrectionType = UITextAutocorrectionType.no
         txt.autocapitalizationType = UITextAutocapitalizationType.none
-        txt.layer.borderWidth = 2
-        txt.layer.borderColor = UIColor.gray.cgColor
-        txt.borderStyle = .roundedRect
-        txt.layer.cornerRadius = 10
         txt.isSecureTextEntry = true
         return txt
     }()
@@ -85,38 +78,28 @@ class LoginViewController: UIViewController {
     // MARK: LIFE CYCLE
     override func viewDidLoad() {
         super.viewDidLoad()
-       createObserver()
         view.backgroundColor = .white
         addSubviews()
         makeConstraints()
     }
     deinit {
-       closeObserver()
+       //closeObserver()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
     
     // MARK: FUNCS
-    func createObserver() {
-        isloginObserver =  NotificationCenter.default.addObserver(forName: .didloginNotification, object: nil, queue: .main) { _ in
-            
-        }
-    }
-    func closeObserver() {
-        if let observer = isloginObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-    }
-  
     func googleLoginButtonTapped() {
         spinner.show(in: view, animated: true)
         vModel.googleSign(view: self) { [weak self] result in
             guard let self = self else {return}
-            if result {
-                let navigationController = UINavigationController(rootViewController: ChatListViewController())
-                self.view.window?.rootViewController = navigationController
+            DispatchQueue.main.async {
                 self.spinner.dismiss(animated: true)
+            }
+            if result {
+                    let navigationController = UINavigationController(rootViewController: ChatListViewController())
+                    self.view.window?.rootViewController = navigationController
             }
         }
     }
@@ -130,7 +113,9 @@ class LoginViewController: UIViewController {
                 let navigationController = UINavigationController(rootViewController: ChatListViewController())
                 strSelf.view.window?.rootViewController = navigationController
             }
-            strSelf.spinner.dismiss(animated: true)
+            DispatchQueue.main.async {
+                strSelf.spinner.dismiss(animated: true)
+            }
         }
     }
     @objc func goToRegister(){

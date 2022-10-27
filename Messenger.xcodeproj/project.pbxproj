@@ -21,6 +21,7 @@
 		8C4EA4DD28BE5F4600898BD0 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8C4EA4DC28BE5F4600898BD0 /* SnapKit */; };
 		8C552D1428D1D37000BB7293 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 8C552D1328D1D37000BB7293 /* GoogleSignIn */; };
 		8C552D1628D1D37000BB7293 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8C552D1528D1D37000BB7293 /* GoogleSignInSwift */; };
+		8C67EC1429046CBA00A8DE80 /* UserDefault+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C67EC1329046CBA00A8DE80 /* UserDefault+Extension.swift */; };
 		8C6B9DFB28DB8AEA003AF8DF /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8C6B9DFA28DB8AEA003AF8DF /* FirebaseAuth */; };
 		8C6B9DFD28DB8AEA003AF8DF /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 8C6B9DFC28DB8AEA003AF8DF /* FirebaseDatabase */; };
 		8C6B9DFF28DB8AEA003AF8DF /* FirebaseDatabaseSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8C6B9DFE28DB8AEA003AF8DF /* FirebaseDatabaseSwift */; };
@@ -29,6 +30,7 @@
 		8C6B9E0528DB8AEA003AF8DF /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8C6B9E0428DB8AEA003AF8DF /* FirebaseStorage */; };
 		8C8842DE28DB60CF00C76F77 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8842DD28DB60CF00C76F77 /* ChatViewModel.swift */; };
 		8C8842E128DB636D00C76F77 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8842E028DB636D00C76F77 /* NewConversationViewController.swift */; };
+		8C8E884528EF0868009EF93E /* ConversationsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E884428EF0868009EF93E /* ConversationsModel.swift */; };
 		8CBD2FC028BF7F690037D11D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8CBD2FBF28BF7F690037D11D /* GoogleService-Info.plist */; };
 		8CBD2FC928BF832D0037D11D /* CustomTextfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBD2FC828BF832D0037D11D /* CustomTextfield.swift */; };
 		8CBD2FCB28BFB39A0037D11D /* AutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBD2FCA28BFB39A0037D11D /* AutManager.swift */; };
@@ -44,6 +46,7 @@
 		8CD5031928E1FB06001741F0 /* MessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD5031828E1FB06001741F0 /* MessageModel.swift */; };
 		8CD5031B28E20061001741F0 /* NewConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD5031A28E20061001741F0 /* NewConversationViewModel.swift */; };
 		8CD5031D28E24476001741F0 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD5031C28E24476001741F0 /* String+Extensions.swift */; };
+		8CD5031F28E8C66D001741F0 /* AuthManager+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD5031E28E8C66D001741F0 /* AuthManager+Extension.swift */; };
 		8CECAEDC28CB60BD0042F31B /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CECAEDB28CB60BD0042F31B /* ChatListViewModel.swift */; };
 		8CECAEDE28CB615D0042F31B /* ChatListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CECAEDD28CB615D0042F31B /* ChatListCell.swift */; };
 		8CECAEE028CB63D30042F31B /* TypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CECAEDF28CB63D30042F31B /* TypeAlias.swift */; };
@@ -65,8 +68,10 @@
 		8C4EA4D228BE516F00898BD0 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		8C4EA4D628BE5CC900898BD0 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		8C4EA4D928BE5D8D00898BD0 /* RegisterViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModels.swift; sourceTree = "<group>"; };
+		8C67EC1329046CBA00A8DE80 /* UserDefault+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefault+Extension.swift"; sourceTree = "<group>"; };
 		8C8842DD28DB60CF00C76F77 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		8C8842E028DB636D00C76F77 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
+		8C8E884428EF0868009EF93E /* ConversationsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsModel.swift; sourceTree = "<group>"; };
 		8CBD2FBF28BF7F690037D11D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8CBD2FC828BF832D0037D11D /* CustomTextfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextfield.swift; sourceTree = "<group>"; };
 		8CBD2FCA28BFB39A0037D11D /* AutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutManager.swift; sourceTree = "<group>"; };
@@ -78,6 +83,7 @@
 		8CD5031828E1FB06001741F0 /* MessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModel.swift; sourceTree = "<group>"; };
 		8CD5031A28E20061001741F0 /* NewConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewModel.swift; sourceTree = "<group>"; };
 		8CD5031C28E24476001741F0 /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
+		8CD5031E28E8C66D001741F0 /* AuthManager+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AuthManager+Extension.swift"; sourceTree = "<group>"; };
 		8CECAEDB28CB60BD0042F31B /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
 		8CECAEDD28CB615D0042F31B /* ChatListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListCell.swift; sourceTree = "<group>"; };
 		8CECAEDF28CB63D30042F31B /* TypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAlias.swift; sourceTree = "<group>"; };
@@ -148,7 +154,7 @@
 				8CD5031728DC9F9D001741F0 /* Models */,
 				8CC51B9F28D35B5D004D24F8 /* Custom Views */,
 				8C22000028CB5F25009D6309 /* Constant */,
-				8CBD2FC728BF82D80037D11D /* Extension */,
+				8CBD2FC728BF82D80037D11D /* Extensions */,
 				8C4EA4D528BE5B8D00898BD0 /* Pages */,
 				8CBD2FD028C0F22A0037D11D /* Firebase */,
 				8C4EA4D028BE512900898BD0 /* Source */,
@@ -209,13 +215,15 @@
 			path = NewConversation;
 			sourceTree = "<group>";
 		};
-		8CBD2FC728BF82D80037D11D /* Extension */ = {
+		8CBD2FC728BF82D80037D11D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				8CBD2FCC28BFBF6F0037D11D /* UIViewController+Extension.swift */,
 				8CD5031C28E24476001741F0 /* String+Extensions.swift */,
+				8CD5031E28E8C66D001741F0 /* AuthManager+Extension.swift */,
+				8C67EC1329046CBA00A8DE80 /* UserDefault+Extension.swift */,
 			);
-			path = Extension;
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		8CBD2FD028C0F22A0037D11D /* Firebase */ = {
@@ -260,6 +268,7 @@
 			children = (
 				8C22FFF828CA4582009D6309 /* UserModel.swift */,
 				8CD5031828E1FB06001741F0 /* MessageModel.swift */,
+				8C8E884428EF0868009EF93E /* ConversationsModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -369,10 +378,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C8E884528EF0868009EF93E /* ConversationsModel.swift in Sources */,
 				8CBD2FC928BF832D0037D11D /* CustomTextfield.swift in Sources */,
 				8CBD2FCB28BFB39A0037D11D /* AutManager.swift in Sources */,
 				8CBD2FCD28BFBF6F0037D11D /* UIViewController+Extension.swift in Sources */,
 				8CD5031628DC8F5A001741F0 /* StorageManager.swift in Sources */,
+				8C67EC1429046CBA00A8DE80 /* UserDefault+Extension.swift in Sources */,
 				8C4EA4DA28BE5D8D00898BD0 /* RegisterViewModels.swift in Sources */,
 				8C4EA4D328BE516F00898BD0 /* LoginViewController.swift in Sources */,
 				8CECAEDC28CB60BD0042F31B /* ChatListViewModel.swift in Sources */,
@@ -382,6 +393,7 @@
 				8CBD2FD328C22AE70037D11D /* ChatListViewController.swift in Sources */,
 				8CECAEDE28CB615D0042F31B /* ChatListCell.swift in Sources */,
 				8C8842DE28DB60CF00C76F77 /* ChatViewModel.swift in Sources */,
+				8CD5031F28E8C66D001741F0 /* AuthManager+Extension.swift in Sources */,
 				8CC51B9E28D35AFD004D24F8 /* ChatViewController.swift in Sources */,
 				8C2B4BA728DA1671009080B1 /* ProfileViewModel.swift in Sources */,
 				8CD5031B28E20061001741F0 /* NewConversationViewModel.swift in Sources */,

@@ -35,9 +35,6 @@ final class RegisterViewController: UIViewController {
         ])
         
         txt.autocorrectionType = UITextAutocorrectionType.no
-        txt.layer.borderWidth = 2
-        txt.layer.borderColor = UIColor.gray.cgColor
-        txt.layer.cornerRadius = 12
         return txt
     }()
     private lazy var emailTextField: CustomTextField = {
@@ -45,9 +42,6 @@ final class RegisterViewController: UIViewController {
         txt.attributedPlaceholder = "Email:".textfieldHintFormat()
         txt.autocorrectionType = UITextAutocorrectionType.no
         txt.autocapitalizationType = UITextAutocapitalizationType.none
-        txt.layer.borderWidth = 2
-        txt.layer.borderColor = UIColor.gray.cgColor
-        txt.layer.cornerRadius = 12
         return txt
     }()
     
@@ -56,16 +50,14 @@ final class RegisterViewController: UIViewController {
         txt.attributedPlaceholder = "Password: Have to be longer than 6 character".textfieldHintFormat()
         txt.autocorrectionType = UITextAutocorrectionType.no
         txt.autocapitalizationType = UITextAutocapitalizationType.none
-        txt.layer.borderWidth = 2
-        txt.layer.borderColor = UIColor.gray.cgColor
-        txt.borderStyle = .roundedRect
-        txt.layer.cornerRadius = 12
         txt.isSecureTextEntry = true
         return txt
     }()
     private lazy var confirmPassTextField: CustomTextField = {
         let txt = CustomTextField()
         txt.attributedPlaceholder =  "Confirm your password".textfieldHintFormat()
+        txt.autocorrectionType = UITextAutocorrectionType.no
+        txt.autocapitalizationType = UITextAutocapitalizationType.none
         txt.isSecureTextEntry = true
         return txt
     }()
@@ -121,9 +113,9 @@ final class RegisterViewController: UIViewController {
             self.displayAlert(message: "Password is not matched")
             return
         }
-        guard let name = self.userNameField.text else { return }
+        guard let name = userNameField.text else { return }
         spinner.show(in: view, animated: true)
-        let image = self.image.image
+        let image = image.image
         vModel.setUserInfo(email: email, name: name, password: password, imageData: image?.pngData())
         vModel.newUser() { [weak self] result in
             guard let self = self else { return }
